@@ -31,7 +31,7 @@ int main() {
     printf("\n");
 
 
-
+//dette er en test
     while (1) {
         int a = 1;
         int floor = elev_get_floor_sensor_signal();
