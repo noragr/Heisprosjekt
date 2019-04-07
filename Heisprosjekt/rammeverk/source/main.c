@@ -1,7 +1,7 @@
 #include "elev.h"
-#include "logic.c"
+#include "logic.h"
 
-#include "statemachine.c"
+#include "statemachine.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>

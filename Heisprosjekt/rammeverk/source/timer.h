@@ -1,9 +1,8 @@
 #ifndef __INCLUDE_TIMER_H__
-#define __INCLUDE_TIMER_H__S
+#define __INCLUDE_TIMER_H__
 
 
-time_t start_value;
-time_t end_value;
+
 
 void start_timer(); //starts the timer
 

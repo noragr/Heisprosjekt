@@ -3,6 +3,9 @@
 #include <time.h>
 
 
+static time_t start_value;
+static time_t end_value;
+
 void start_timer(){
 	time(&start_value);  //time() returns seconds since pre-defined value
 }
