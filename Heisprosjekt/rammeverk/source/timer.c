@@ -1,7 +1,7 @@
 #include "timer.h"
 #include "elev.h"
+#include <time.h>
 
-#include <stdio.h>
 
 void start_timer(){
 	time(&start_value);  //time() returns seconds since pre-defined value

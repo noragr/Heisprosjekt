@@ -1,9 +1,10 @@
+#include "statemachine.h"
 #include "channels.h"
 #include "elev.h"
 #include "io.h"
+#include "logic.h"
 
-#include <assert.h>
-#include <stdlib.h>
+#include <stdio.h>
 
 //Open door
 void open_door(){
@@ -24,7 +25,9 @@ void stop_elev(){
 void emergency_stop(){
 	stop_elev();
 	elev_set_stop_lamp(1);
-	//delete all orders
+	for (int floor = 0; floor < N_FLOORS; floor++){
+		delete_order(floor); //delete all orders
+	}
 	if (elev_get_floor_sensor_signal()!=-1){ //at a floor
 		while(elev_get_stop_signal()){
 			open_door();
@@ -34,7 +37,10 @@ void emergency_stop(){
 	}
 	else{
 		while (elev_get_stop_signal()){
-			//IGNORE ORDERS
+			;
+			/*if (elev_get_floor_sensor_signal() || elev_get_button_signal(button, floor)){
+				queue[][floor]=0; //ignore new orders
+			}*/
 		}
 	}
 }
