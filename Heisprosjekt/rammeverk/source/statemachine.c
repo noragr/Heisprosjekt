@@ -6,6 +6,10 @@
 
 #include <stdio.h>
 
+static int current_floor;
+static elev_motor_direction_t dir;
+
+
 //Open door
 void open_door(){
 	elev_set_door_open_lamp(1);
@@ -56,38 +60,45 @@ state_machine_type_t state_machine(state_machine_type_t current_state){
        			break;
     		}
 
-			initializer();
+			current_floor = initializer();
 			next_state = IDLE; //hmmm
 			break;
 
 		case MOVING:
+			set_order();
 			// sjekk om den er fremme
 			if (check_order_complete()) {
-
+				next_state = STOPPED;
 			}
 
 			// check which floor, set floor_indicator();
-			set_order();
+			
 			if(elev_get_stop_signal()){
 				next_state = STOPPED;
 				break;
-			}
-			if (check_order_complete()) {
-				delete_order(current_floor);
-				// timer og åpne dør
-				next_state = IDLE;
 			}else {
-				next_state = MOVING;
+				if (elev_get_floor_sensor_signal() != -1) {
+					current_floor = elev_get_floor_sensor_signal();
+					printf("%d\n", current_floor);
+				}
+				else{
+					next_state = MOVING;
+				}
+				
 			}
 			break;
 
 		case IDLE:
+			dir = DIRN_STOP;
+			current_floor = elev_get_floor_sensor_signal();
+			printf("%d\n", current_floor);
 			set_order();
 			if(elev_get_stop_signal()){
 				next_state = STOPPED;
 				break;
 			}
 			if (order_amount() == 0) {
+				elev_set_motor_direction(dir);
 				next_state = IDLE;
 			}else {
 				dir = get_direction();
@@ -95,15 +106,32 @@ state_machine_type_t state_machine(state_machine_type_t current_state){
 			}
 			break;
 
-		case STOPPED:
+		case STOPPED:  // I en etasje!! 
+			stop_elev();
+			dir = DIRN_STOP;
+			elev_set_motor_direction(dir);
+			current_floor = elev_get_floor_sensor_signal();
+			delete_order(current_floor);
+			/*while (timer) {
+				stop_elev();
+				open_door();
+				set_order();
+				}*/
+			close_door();
+			next_state = IDLE;
+			
 			if(elev_get_stop_signal()){
-				next_state = STOPPED;
+				next_state = EMERGENCY;
 			}
 			break;
 
 		case EMERGENCY:
 			emergency_stop();
 			next_state = IDLE;
+			break;
+
+		case FAILURE:
+			next_state = FAILURE;
 			break;
 
 		default:

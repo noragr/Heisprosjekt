@@ -9,11 +9,12 @@
 
 
 static int current_floor;
-static elev_motor_direction_t current_dir;
+static elev_motor_direction_t dir;
 
 
 
 int initializer(){
+
 	int floor = elev_get_floor_sensor_signal();
 	printf("%d\n", floor);
 
@@ -23,7 +24,7 @@ int initializer(){
 			floor = elev_get_floor_sensor_signal();
 		}	
 	}
-	elev_set_motor_direction(DIRN_STOP);
+	elev_set_motor_direction(DIRN_UP);
 	elev_set_floor_indicator(floor);
 	return floor;
 }
@@ -43,19 +44,25 @@ int get_order(int floor, elev_button_type_t button) {
 
 elev_motor_direction_t get_direction() {
 
+	current_floor = elev_get_floor_sensor_signal();
+	if (current_floor != -1) {
+		elev_set_floor_indicator(current_floor);
+	}
+
 	if (order_amount() != 0) {
 		// algoritme for å velge retning 
 		if ((get_order(current_floor, 0) || get_order(current_floor, 1) || get_order(current_floor, 2)) && elev_get_floor_sensor_signal() != -1) {  // allerede i etasjen 
 			// start timer. Open door 
 			// next_state = ARRIVED
 		}  
-		else if (elev_get_floor_sensor_signal() == -1 &&  !order_is_in_dir()) {     // om den er stuck 
+		else if (elev_get_floor_sensor_signal() == -1 &&  (order_is_in_dir()==-1*dir)) {     // om den er stuck 
 			dir = -1*dir;
 
 		}else if (order_is_in_dir()) { // om den er i riktig retning
+			return dir;
 
-		}  else if (!order_is_in_dir()) {
-
+		}  else if (!order_is_in_dir()) {   // om den er i feil retning 
+			dir = -1*dir;
 
 		} else if (dir == 0) {  // heisen står stille . 
 			for (int floor = current_floor + 1; floor < N_FLOORS; floor++) {
@@ -64,10 +71,13 @@ elev_motor_direction_t get_direction() {
 						dir = 1;
 					}
 				}
-			}for (int floor = current_floor - 1; floor >= 0; floor--) {
-				for (elev_button_type_t button = 0; button < 3; button++) {
-					if (get_order(floor, button)) {
-						dir = -1;
+			}
+			if (dir != 1) {
+				for (int floor = current_floor - 1; floor >= 0; floor--) {
+					for (elev_button_type_t button = 0; button < 3; button++) {
+						if (get_order(floor, button)) {
+							dir = -1;
+						}
 					}
 				}
 			}
@@ -104,31 +114,6 @@ void set_order(){  // tar inn en etasje og retning.  // husk å endre!!!
 		}
 	}
 
-
-
-	/*
-	if (button == BUTTON_CALL_UP) {
-		queue[0][floor] = 1;
-		queue[2][floor] = 1;
-		//elev_set_button_lamp(BUTTON_CALL_UP, floor, 1);
-		// mer
-	}
-	else if (button == BUTTON_CALL_DOWN){
-		queue[1][floor] = 1;
-		queue[3][floor] = 1;
-	} 
-	if (button == BUTTON_COMMAND) {
-		if (pos < floor) { //move upward
-			queue[0][floor]=1;
-		}else if (pos > floor){ //move down
-			queue[1][floor] = 1;
-		}else if (pos == floor){ //same floor
-			//open_door();
-			elev_set_door_open_lamp(1); //open door one more time
-		}
-		queue[4][floor] = 1;
-	}
-	elev_set_button_lamp(button, floor, 1); *///set light in every made orders
 }
 
 
@@ -184,6 +169,10 @@ int order_is_in_dir() {
 }
 
 int check_order_complete(){
+	current_floor = elev_get_floor_sensor_signal();
+	if (current_floor != -1) {
+		elev_set_floor_indicator(current_floor);
+	}
 	for (int button = 0; button < 3; button++) {
 		if (get_order(current_floor, button)) {
 			return 1;		}

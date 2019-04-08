@@ -16,7 +16,8 @@ typedef enum /*state_machine_type*/ {
 	INITIALIZED,
 	IDLE,
 	STOPPED,
-	EMERGENCY
+	EMERGENCY,
+	FAILURE
 } state_machine_type_t;
 
 state_machine_type_t state_machine(state_machine_type_t current_state);
