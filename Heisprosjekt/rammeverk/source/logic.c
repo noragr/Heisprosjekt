@@ -24,7 +24,6 @@ int initializer(){
 			floor = elev_get_floor_sensor_signal();
 		}	
 	}
-	elev_set_motor_direction(DIRN_UP);
 	elev_set_floor_indicator(floor);
 	return floor;
 }
@@ -98,6 +97,7 @@ elev_motor_direction_t get_direction() {
 
 
 void set_order(){  // tar inn en etasje og retning.  // husk å endre!!!
+	current_floor = elev_get_floor_sensor_signal();
 	for (int floor = 0; floor < N_FLOORS; floor++) {
 		for (elev_button_type_t button = 0; button < 3; button++) {
 			if (elev_get_button_signal(button, floor)) {
@@ -135,10 +135,10 @@ void delete_order(int floor){
 int order_amount() {
 	int amount = 0;
 	for (int i = 0; i < N_FLOORS; i++) {
-		if (queue[0][i] == 1) {    // sjekker bestillinger oppover
+		if (queue[2][i] == 1) {    // sjekker bestillinger oppover
 			amount++;
 		}
-		if (queue[1][i] == 1) { // sjekker bestillinger nedover 
+		if (queue[3][i] == 1) { // sjekker bestillinger nedover 
 			amount++;
 		}
 	}

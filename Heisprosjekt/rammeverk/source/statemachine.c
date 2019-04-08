@@ -98,10 +98,12 @@ state_machine_type_t state_machine(state_machine_type_t current_state){
 				break;
 			}
 			if (order_amount() == 0) {
+				printf("order_amount er 0\n");
 				elev_set_motor_direction(dir);
 				next_state = IDLE;
 			}else {
 				dir = get_direction();
+				printf("Hei\n" );
 				elev_set_motor_direction(dir);
 			}
 			break;
