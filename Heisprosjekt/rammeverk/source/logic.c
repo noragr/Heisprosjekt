@@ -27,7 +27,8 @@ int initializer(){
 			elev_set_motor_direction(DIRN_UP);
 			floor = elev_get_floor_sensor_signal();
 		}
-		printf("initialisert\n");	
+		printf("initialisert\n");
+		elev_set_motor_direction(DIRN_STOP);	
 	}
 	elev_set_floor_indicator(floor);
 	return floor;
@@ -106,11 +107,21 @@ elev_motor_direction_t get_direction(elev_motor_direction_t dir) {
 void set_order(){  // tar inn en etasje og retning.  // husk å endre!!!
 	current_floor = elev_get_floor_sensor_signal();
 	for (int floor = 0; floor < N_FLOORS; floor++) {
-		for (elev_button_type_t button = 0; button < 3; button++) {
-			if (elev_get_button_signal(button, floor)) {
-				queue[button][floor] = 1;
-				elev_set_button_lamp(button, floor, 1);
-			}
+		if (elev_get_button_signal(BUTTON_COMMAND, floor)) {
+			queue[2][floor] = 1;
+			elev_set_button_lamp(BUTTON_COMMAND, floor, 1);
+		}
+	}
+	for (int floor = 0; floor < N_FLOORS-1; floor++) {
+		if (elev_get_button_signal(BUTTON_CALL_UP, floor)) {
+			queue[0][floor] = 1;
+			elev_set_button_lamp(BUTTON_CALL_UP, floor, 1);
+		}
+	}
+	for (int floor = 1; floor < N_FLOORS; floor++) {
+		if (elev_get_button_signal(BUTTON_CALL_DOWN, floor)) {
+			queue[1][floor] = 1;
+			elev_set_button_lamp(BUTTON_CALL_DOWN, floor, 1);
 		}
 	}
 

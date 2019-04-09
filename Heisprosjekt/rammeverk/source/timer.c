@@ -1,4 +1,4 @@
-//#include "timer.h"
+#include "timer.h"
 #include "elev.h"
 #include <time.h>
 #include <stdio.h>
@@ -20,7 +20,7 @@ int timer_expired(double seconds){
 	return 0;
 }
 */
-/*clock_t start_timer(){
+clock_t start_timer(){
 	return clock(); //returns nr secs since program launched when divided by CLOCKS_PER_SEC
 }
 
@@ -32,4 +32,4 @@ int timer_expired(clock_t start_value){
 		return 1; //timer expired
 	}
 	return 0;
-}*/
+}

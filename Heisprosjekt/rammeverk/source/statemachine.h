@@ -1,5 +1,6 @@
 #ifndef __INCLUDE_STATEMACHINE_H__
 #define __INCLUDE_STATEMACHINE_H__
+#include <sys/types.h>
 
 
 void open_door();
