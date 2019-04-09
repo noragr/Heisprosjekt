@@ -57,7 +57,6 @@ int elev_init(void) {
 }
 
 void elev_set_motor_direction(elev_motor_direction_t dirn) {
-    dirn = 0;
     if (dirn == 0){
         io_write_analog(MOTOR, 0);
     } else if (dirn > 0) {
@@ -121,12 +120,12 @@ void elev_set_floor_indicator(int floor) {
 }
 
 int elev_get_button_signal(elev_button_type_t button, int floor) {
-    /*assert(floor >= 0);
+    assert(floor >= 0);
     assert(floor < N_FLOORS);
     assert(!(button == BUTTON_CALL_UP && floor == N_FLOORS - 1));
     assert(!(button == BUTTON_CALL_DOWN && floor == 0));
     assert(button == BUTTON_CALL_UP || button == BUTTON_CALL_DOWN || button == BUTTON_COMMAND);
-    */
+
     if (io_read_bit(button_channel_matrix[floor][button]))
         return 1;
     else
@@ -134,12 +133,12 @@ int elev_get_button_signal(elev_button_type_t button, int floor) {
 }
 
 void elev_set_button_lamp(elev_button_type_t button, int floor, int value) {
-    /*assert(floor >= 0);
+    assert(floor >= 0);
     assert(floor < N_FLOORS);
     assert(!(button == BUTTON_CALL_UP && floor == N_FLOORS - 1));
     assert(!(button == BUTTON_CALL_DOWN && floor == 0));
     assert(button == BUTTON_CALL_UP || button == BUTTON_CALL_DOWN || button == BUTTON_COMMAND);
-    */
+
     if (value)
         io_set_bit(lamp_channel_matrix[floor][button]);
     else

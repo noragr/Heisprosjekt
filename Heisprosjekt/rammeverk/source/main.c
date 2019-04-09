@@ -5,8 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
-
 int main() {
 
     printf("Press obstruction button to stop elevator and exit program.\n");
@@ -18,6 +16,29 @@ int main() {
     if (!elev_init()) {
         printf("Unable to initialize elevator hardware!\n");
         return 1;
+    }
+    elev_set_motor_direction(DIRN_DOWN);
+    printf("satte opp\n");
+    while (1) {
+        
+
+       
+
+        // Change direction when we reach top/bottom floor
+        if (elev_get_floor_sensor_signal() == N_FLOORS - 1) {
+            elev_set_motor_direction(DIRN_DOWN);
+            dir = DIRN_DOWN;
+        } else if (elev_get_floor_sensor_signal() == 0) {
+            elev_set_motor_direction(DIRN_UP);
+            dir = DIRN_UP;
+        }
+
+        // Stop elevator and exit program if the stop button is pressed
+        if (elev_get_stop_signal()) {
+            elev_set_motor_direction(DIRN_STOP);
+            dir = DIRN_STOP;
+            break;
+        }
     }
     elev_set_motor_direction(DIRN_DOWN);
     printf("Satte ned\n");
@@ -46,7 +67,6 @@ int main() {
             break; //Exit program
         } 
 */
-
          // Stop elevator and exit program if the stop button is pressed
         if (elev_get_stop_signal()) {
             elev_set_motor_direction(DIRN_STOP);
@@ -77,7 +97,13 @@ int main() {
 
 
 /*
-    elev_motor_direction_t dir;
+ 
+
+#include "elev.h"
+#include <stdio.h>
+
+
+int main() {
     // Initialize hardware
     if (!elev_init()) {
         printf("Unable to initialize elevator hardware!\n");
@@ -86,45 +112,24 @@ int main() {
 
     printf("Press STOP button to stop elevator and exit program.\n");
 
-
-    int floor = initializer();
-    printf("%d\n",floor);
     elev_set_motor_direction(DIRN_UP);
 
-    
-    for (int i = 0; i < 5; i ++) {
-        for (int f = 0; f < N_FLOORS; f++) {
-            printf("%d", queue[i][f]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-
-
-
-
-
     while (1) {
-        
-
-       
-
         // Change direction when we reach top/bottom floor
         if (elev_get_floor_sensor_signal() == N_FLOORS - 1) {
             elev_set_motor_direction(DIRN_DOWN);
-            dir = DIRN_DOWN;
         } else if (elev_get_floor_sensor_signal() == 0) {
             elev_set_motor_direction(DIRN_UP);
-            dir = DIRN_UP;
         }
 
         // Stop elevator and exit program if the stop button is pressed
         if (elev_get_stop_signal()) {
             elev_set_motor_direction(DIRN_STOP);
-            dir = DIRN_STOP;
             break;
         }
     }
 
     return 0;
+}
+
 */
