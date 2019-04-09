@@ -20,8 +20,9 @@ int main() {
         return 1;
     }
     elev_set_motor_direction(DIRN_DOWN);
+    printf("Satte ned\n");
     while(1){
-        
+        printf("kjorer ned!!!\n");
     }
     dir = DIRN_UP;
     elev_set_motor_direction(dir);
