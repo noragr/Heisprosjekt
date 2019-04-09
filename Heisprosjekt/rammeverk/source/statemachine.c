@@ -3,12 +3,14 @@
 #include "elev.h"
 #include "io.h"
 #include "logic.h"
+//#include "timer.h"
 
 #include <stdio.h>
+#include <time.h>
+//#include <sys/types.h>
 
 static int current_floor;
 static elev_motor_direction_t dir;
-
 
 //Open door
 void open_door(){
@@ -28,6 +30,7 @@ void stop_elev(){
 //Emergency button
 void emergency_stop(){
 	stop_elev();
+	dir = DIRN_STOP;
 	elev_set_stop_lamp(1);
 	for (int floor = 0; floor < N_FLOORS; floor++){
 		delete_order(floor); //delete all orders
@@ -37,6 +40,10 @@ void emergency_stop(){
 			open_door();
 		}
 		//TIMER 3 SEC
+		/*clock_t start_value = start_timer();
+		while (!(timer_expired(start_value))) {
+					set_order();
+		}*/
 		close_door();
 	}
 	else{
@@ -51,6 +58,7 @@ void emergency_stop(){
 
 
 state_machine_type_t state_machine(state_machine_type_t current_state){
+	//static elev_motor_direction_t dir;
 	state_machine_type_t next_state = current_state;
 	switch (current_state){
 		case INITIALIZED:
@@ -77,48 +85,59 @@ state_machine_type_t state_machine(state_machine_type_t current_state){
 				next_state = STOPPED;
 				break;
 			}else {
-				if (elev_get_floor_sensor_signal() != -1) {
+				dir = get_direction(dir);
+				elev_set_motor_direction(dir);
+				if (elev_get_floor_sensor_signal() != -1) { //in a floor
 					current_floor = elev_get_floor_sensor_signal();
 					printf("%d\n", current_floor);
+					elev_set_floor_indicator(current_floor);
+					next_state = MOVING;
 				}
 				else{
 					next_state = MOVING;
 				}
-				
 			}
 			break;
 
 		case IDLE:
-			dir = DIRN_STOP;
+			//dir = DIRN_STOP;
 			current_floor = elev_get_floor_sensor_signal();
 			printf("%d\n", current_floor);
 			set_order();
 			if(elev_get_stop_signal()){
-				next_state = STOPPED;
+				next_state = EMERGENCY;
 				break;
 			}
 			if (order_amount() == 0) {
 				printf("order_amount er 0\n");
-				elev_set_motor_direction(dir);
+				elev_set_motor_direction(DIRN_STOP);
 				next_state = IDLE;
 			}else {
-				dir = get_direction();
-				printf("Hei\n" );
-				elev_set_motor_direction(dir);
+				//dir = get_direction(DIRN_STOP);
+				next_state = MOVING;
 			}
 			break;
 
 		case STOPPED:  // I en etasje!! 
 			stop_elev();
-			dir = DIRN_STOP;
-			elev_set_motor_direction(dir);
+			elev_set_motor_direction(DIRN_STOP);
 			current_floor = elev_get_floor_sensor_signal();
 			delete_order(current_floor);
+
+			if(current_floor != -1){ //dobbelsjekker i etasje
+				open_door();
+				/*clock_t start_value = clock();
+				while (!timer_expired(start_value)) {
+					set_order();
+				}
+				close_door();
+			}*/
 			/*while (timer) {
 				stop_elev();
 				open_door();
 				set_order();
 				}*/
+			}
 			close_door();
 			next_state = IDLE;
 			

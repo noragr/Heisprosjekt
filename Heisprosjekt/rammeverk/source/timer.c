@@ -1,11 +1,13 @@
-#include "timer.h"
+//#include "timer.h"
 #include "elev.h"
 #include <time.h>
+#include <stdio.h>
 
-
+/*
 static time_t start_value;
-static time_t end_value;
+static time_t end_value;*/
 
+/*
 void start_timer(){
 	time(&start_value);  //time() returns seconds since pre-defined value
 }
@@ -17,3 +19,17 @@ int timer_expired(double seconds){
 	}
 	return 0;
 }
+*/
+/*clock_t start_timer(){
+	return clock(); //returns nr secs since program launched when divided by CLOCKS_PER_SEC
+}
+
+int timer_expired(clock_t start_value){
+	clock_t difference = clock() *1000- start_value;
+	double seconds = difference  / CLOCKS_PER_SEC;
+	if (seconds >= 3){ 
+		printf("teeeest\n");
+		return 1; //timer expired
+	}
+	return 0;
+}*/
