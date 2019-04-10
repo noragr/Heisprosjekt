@@ -64,11 +64,10 @@ elev_motor_direction_t get_direction(elev_motor_direction_t dir) {
 			close_door();
 			printf("dør lukket\n");
 		}  
-		/*else if (elev_get_floor_sensor_signal() == -1 &&  ((order_is_in_dir(dir)==-1*dir) && dir != 0)) {     // om den er stuck 
-			dir = -1*dir;
-
-		}*/
-		else if (order_is_in_dir(dir)==1 && dir != DIRN_STOP) { // om den er i riktig retning  //// ENDRE passord
+		else if (elev_get_floor_sensor_signal() == -1 &&  ((order_is_in_dir(dir)==-1))) {     // om den er stuck 
+			dir = -1;
+		}
+		else if (order_is_in_dir(dir)==1 ) { // om den er i riktig retning  //// ENDRE passord
 			printf("riktig retning\n");
 			return dir;
 
@@ -173,7 +172,7 @@ int order_is_in_dir(elev_motor_direction_t dir) {
 				}
 			}
 		}
-	}else if (dir == -1 ) {  // next order is in opposite direction 
+	}else if (dir == DIRN_DOWN ) {  // next order is in opposite direction 
 		for (int floor = current_floor-1; floor >= 0; floor--) {
 			for (int button = 0; button < 3; button++) {
 				if (get_order(floor, button) == 1) {
@@ -189,22 +188,20 @@ int check_order_complete(){
 	current_floor = elev_get_floor_sensor_signal();
 	if (current_floor != -1) {
 		elev_set_floor_indicator(current_floor);
-	}
-	for (int button = 0; button < 3; button++) {
-		if (get_order(current_floor, button)) {
-			return 1;		}
+		for (int button = 0; button < 3; button++) {
+			if (get_order(current_floor, button)) {
+				return 1;		}
+		}
 	}
 	return 0;
 }
 
 /*
 elev_motor_direction_t get_direction(elev_motor_direction_t dir) {
-
 	current_floor = elev_get_floor_sensor_signal();
 	if (current_floor != -1) {
 		elev_set_floor_indicator(current_floor);
 	}
-
 	if (order_amount() != 0) {
 		// algoritme for å velge retning 
 		if ((get_order(current_floor, 0) || get_order(current_floor, 1) || get_order(current_floor, 2)) && elev_get_floor_sensor_signal() != -1) {  // allerede i etasjen 
@@ -219,13 +216,10 @@ elev_motor_direction_t get_direction(elev_motor_direction_t dir) {
 		}  
 		else if (elev_get_floor_sensor_signal() == -1 &&  ((order_is_in_dir(dir)==-1*dir) && dir != 0)) {     // om den er stuck 
 			dir = -1*dir;
-
 		}else if (order_is_in_dir(dir)) { // om den er i riktig retning
 			return dir;
-
 		}  else if (order_is_in_dir(dir) == -1) {   // om den er i feil retning 
 			dir = -1*dir;
-
 		} else if (dir == DIRN_STOP) {  // heisen står stille . 
 			for (int floor = current_floor + 1; floor < N_FLOORS; floor++) {
 				for (elev_button_type_t button = 0; button < 3; button++) {
@@ -244,7 +238,6 @@ elev_motor_direction_t get_direction(elev_motor_direction_t dir) {
 				}
 			}
 		}
-
 	} else {
 		if (elev_get_floor_sensor_signal() == -1) {  // no orders and elevator between floors. 
 			current_floor = -1;
