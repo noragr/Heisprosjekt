@@ -64,14 +64,17 @@ elev_motor_direction_t get_direction(elev_motor_direction_t dir) {
 			close_door();
 			printf("dør lukket\n");
 		}  
-		else if (elev_get_floor_sensor_signal() == -1 &&  ((order_is_in_dir(dir)==-1*dir) && dir != 0)) {     // om den er stuck 
+		/*else if (elev_get_floor_sensor_signal() == -1 &&  ((order_is_in_dir(dir)==-1*dir) && dir != 0)) {     // om den er stuck 
 			dir = -1*dir;
 
-		}else if (order_is_in_dir(dir)) { // om den er i riktig retning
+		}*/
+		else if (order_is_in_dir(dir)==1 && dir != DIRN_STOP) { // om den er i riktig retning  //// ENDRE passord
+			printf("riktig retning\n");
 			return dir;
 
-		}  else if (order_is_in_dir(dir) == -1) {   // om den er i feil retning 
+		}  else if (order_is_in_dir(dir) == -1 && dir != DIRN_STOP) {   // om den er i feil retning 
 			dir = -1*dir;
+			return dir;
 
 		} else if (dir == DIRN_STOP) {  // heisen står stille . 
 			for (int floor = current_floor + 1; floor < N_FLOORS; floor++) {
@@ -91,7 +94,6 @@ elev_motor_direction_t get_direction(elev_motor_direction_t dir) {
 				}
 			}
 		}
-
 	} else {
 		if (elev_get_floor_sensor_signal() == -1) {  // no orders and elevator between floors. 
 			current_floor = -1;
@@ -152,14 +154,18 @@ int order_amount() {
 		if (queue[1][i] == 1) { // sjekker bestillinger nedover 
 			amount++;
 		}
+		if (queue[2][i] == 1) {
+			amount++;
+		}
 	}
+	printf("%d\n",amount);
 	return amount;
 }
 
 
 
 int order_is_in_dir(elev_motor_direction_t dir) {
-	if (dir == 1 || dir == 0) {  // next order is in direction 
+	if (dir == DIRN_UP ) {  // next order is in direction 
 		for (int floor = current_floor+1; floor < N_FLOORS; floor++) {
 			for (int button = 0; button < 3; button++) {
 				if (get_order(floor, button) == 1) {
@@ -167,7 +173,7 @@ int order_is_in_dir(elev_motor_direction_t dir) {
 				}
 			}
 		}
-	}else if (dir == -1 || dir == 0) {  // next order is in opposite direction 
+	}else if (dir == -1 ) {  // next order is in opposite direction 
 		for (int floor = current_floor-1; floor >= 0; floor--) {
 			for (int button = 0; button < 3; button++) {
 				if (get_order(floor, button) == 1) {

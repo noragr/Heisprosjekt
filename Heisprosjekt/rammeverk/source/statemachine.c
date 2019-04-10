@@ -65,30 +65,42 @@ state_machine_type_t state_machine(state_machine_type_t current_state){
 			break;
 
 		case MOVING:
-			if (elev_get_floor_sensor_signal() == N_FLOORS - 1) {
-            	elev_set_motor_direction(DIRN_DOWN);
-            	current_dir = DIRN_DOWN;
-        	} else if (elev_get_floor_sensor_signal() == 0) {
-            	elev_set_motor_direction(DIRN_UP);
-            	current_dir = DIRN_UP;
-        	}
+			
 			set_order();
-
 			// sjekk om den er fremme
-			if (check_order_complete()) {
-				next_state = STOPPED;
-				current_dir = DIRN_STOP;
-			}
 
+			if (check_order_complete()) {
+				printf("Order complete\n");
+				next_state = STOPPED;
+				printf("stoppet\n");
+				//current_dir = DIRN_STOP;
+				break;
+			} else{
 			// check which floor, set floor_indicator();
 			
 			if(elev_get_stop_signal()){
-				next_state = STOPPED;
+				printf("stop\n");
+				next_state = EMERGENCY;
 				current_dir = DIRN_STOP;
 				break;
 			}else {
+
+				if (elev_get_floor_sensor_signal() == N_FLOORS - 1) {
+            		elev_set_motor_direction(DIRN_DOWN);
+            		current_dir = DIRN_DOWN;
+            		next_state = MOVING;
+            		break;
+        		} else if (elev_get_floor_sensor_signal() == 0) {
+           			elev_set_motor_direction(DIRN_UP);
+            		current_dir = DIRN_UP;
+            		next_state = MOVING;
+            		break;
+        		}
+
+     
 				current_dir = get_direction(current_dir);
-				elev_set_motor_direction(current_dir);
+				printf("%d\n",current_dir );
+				elev_set_motor_direction(current_dir);  
 				if (elev_get_floor_sensor_signal() != -1) { //in a floor
 					current_floor = elev_get_floor_sensor_signal();
 					printf("%d\n", current_floor);
@@ -98,12 +110,11 @@ state_machine_type_t state_machine(state_machine_type_t current_state){
 				else{
 					next_state = MOVING;
 				}
-			}
+			}}
 			break;
 
 		case IDLE:
-			current_dir = DIRN_STOP;
-			elev_set_motor_direction(current_dir);
+			elev_set_motor_direction(DIRN_STOP);
 			current_floor = elev_get_floor_sensor_signal();
 			printf("%d\n", current_floor);
 			set_order();
@@ -111,23 +122,28 @@ state_machine_type_t state_machine(state_machine_type_t current_state){
 				next_state = EMERGENCY;
 				break;
 			}
-			if (order_amount() == 0) {
+			if (order_amount() != 0) {
+				next_state = MOVING;
+				printf("MOVING\n");
+				
+			}else {
 				printf("order_amount er 0\n");
 				next_state = IDLE;
-			}else {
-				next_state = MOVING;
+				
 			}
 			break;
 
 		case STOPPED:  // I en etasje!! 
 			stop_elev();
-			current_dir = DIRN_STOP;
+			//current_dir = DIRN_STOP;
+			printf("Stoppet\n");
 			elev_set_motor_direction(DIRN_STOP);
 			current_floor = elev_get_floor_sensor_signal();
-			delete_order(current_floor);
+			
 
 			if(current_floor != -1){ //dobbelsjekker i etasje
 				open_door();
+				delete_order(current_floor);
 				/*clock_t start_value = clock();
 				while (!timer_expired(start_value)) {
 					set_order();
@@ -141,6 +157,7 @@ state_machine_type_t state_machine(state_machine_type_t current_state){
 				}*/
 			}
 			close_door();
+
 			next_state = IDLE;
 			
 			if(elev_get_stop_signal()){
