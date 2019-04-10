@@ -55,14 +55,8 @@ elev_motor_direction_t get_direction(elev_motor_direction_t dir) {
 	if (order_amount() != 0) {
 		// algoritme for å velge retning 
 		if ((get_order(current_floor, 0) || get_order(current_floor, 1) || get_order(current_floor, 2)) && elev_get_floor_sensor_signal() != -1) {  // allerede i etasjen 
-			open_door();
-			/*clock_t start_value = start_timer();
-			while(!(timer_expired(start_value))) {
-					set_order();
-					printf("dør åpnet\n");
-			}*/
-			close_door();
-			printf("dør lukket\n");
+			dir = 0;
+			return dir;
 		}  
 		else if (elev_get_floor_sensor_signal() == -1 &&  ((order_is_in_dir(dir)==-1))) {     // om den er stuck 
 			dir = -1;
@@ -95,9 +89,7 @@ elev_motor_direction_t get_direction(elev_motor_direction_t dir) {
 		}
 	} else {
 		if (elev_get_floor_sensor_signal() == -1) {  // no orders and elevator between floors. 
-			current_floor = -1;
 			current_floor = initializer();
-			elev_set_floor_indicator(current_floor);
 			dir = DIRN_STOP;
 		}
 	}
@@ -129,8 +121,7 @@ void set_order(){  // tar inn en etasje og retning.  // husk å endre!!!
 }
 
 
-void delete_order(int floor){
-	// fjerne lys 
+void delete_order(int floor){ 
 	for (int lys = 0; lys < 3; lys++) {
 		if (queue[lys][floor] == 1){
 			elev_set_button_lamp(lys, floor, 0);
@@ -139,8 +130,7 @@ void delete_order(int floor){
 
 	for (int i = 0; i < 3; i++) {
 		queue[i][floor] = 0;
-	}
-	// fjerne lys. 
+	} 
 }
 
 
@@ -184,17 +174,47 @@ int order_is_in_dir(elev_motor_direction_t dir) {
 	return -1;
 }
 
-int check_order_complete(){
+int check_order_complete(elev_motor_direction_t dir){
 	current_floor = elev_get_floor_sensor_signal();
 	if (current_floor != -1) {
 		elev_set_floor_indicator(current_floor);
-		for (int button = 0; button < 3; button++) {
-			if (get_order(current_floor, button)) {
-				return 1;		}
+
+		if (dir == DIRN_UP ) {  
+			//int sum = 0;
+			if (get_order(current_floor, BUTTON_CALL_UP) || get_order(current_floor, BUTTON_COMMAND) || get_order(current_floor, BUTTON_CALL_DOWN)) {
+				return 1;
+			}/*if (current_floor != N_FLOORS-1) {
+				for (int floor = current_floor +1; floor < N_FLOORS; floor++) {
+					
+					if (get_order(floor, BUTTON_CALL_UP) || get_order(floor, BUTTON_CALL_DOWN) || get_order(floor, BUTTON_COMMAND)) {
+						sum++;
+					}
+				}
+				if (sum == 0) {
+					return 1;
+				}
+			}*/
+		}else if (dir == DIRN_DOWN) {
+			//int sum = 0;
+			if (get_order(current_floor, BUTTON_CALL_DOWN) || get_order(current_floor, BUTTON_COMMAND) || get_order(current_floor, BUTTON_CALL_UP)) {
+				return 1;		
+			}/*
+			if (current_floor != 0) {
+				for (int floor = current_floor -1; floor >= 0; floor--) {
+					
+					if (get_order(floor, BUTTON_CALL_UP) || get_order(floor, BUTTON_CALL_DOWN) || get_order(floor, BUTTON_COMMAND)) {
+						sum++;
+					}
+				}
+				if (sum == 0) {
+					return 1;
+				}
+			}*/		
 		}
 	}
 	return 0;
 }
+
 
 /*
 elev_motor_direction_t get_direction(elev_motor_direction_t dir) {
@@ -248,4 +268,24 @@ elev_motor_direction_t get_direction(elev_motor_direction_t dir) {
 	}
 	return dir;
 }
+
+
+if (dir == DIRN_UP ) {  // next order is in direction 
+		for (int floor = current_floor+1; floor < N_FLOORS; floor++) {
+			if (get_order(floor, BUTTON_CALL_UP)) {
+				return 1;
+			}else if (get_order(floor, BUTTON_COMMAND)) {
+				return 1;
+			}
+		}
+	}
+	else if (dir == DIRN_DOWN ) {  // next order is in opposite direction 
+		for (int floor = current_floor-1; floor >= 0; floor--) {
+			if(get_order(floor, BUTTON_CALL_DOWN)) {
+				return 1;
+			}else if (get_order(floor, BUTTON_COMMAND)) {
+				return 1;
+			}
+		}
+	}
 */

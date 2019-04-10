@@ -34,17 +34,27 @@ void emergency_stop(){
 	for (int floor = 0; floor < N_FLOORS; floor++){
 		delete_order(floor); //delete all orders
 	}
-	if (elev_get_floor_sensor_signal()!=-1){ //at a floor
+	if (elev_get_floor_sensor_signal() !=-1){ //at a floor
 		while(elev_get_stop_signal()){
 			open_door();
 		}
+		elev_set_stop_lamp(0);
 		//TIMER 3 SEC
+		time_t start = start_time();
+    	while (!(timer_expired(start))) {
+        	open_door();
+    	}
+    	close_door();
 	}
 	else{
 		while (elev_get_stop_signal()){
-			; 
-			// Timer
+			;
 		}
+		elev_set_stop_lamp(0);
+		time_t start = start_time();
+    	while (!(timer_expired(start))) {
+        	printf("Timer Test\n");
+    	}
 	}
 }
 
@@ -97,7 +107,6 @@ state_machine_type_t state_machine(state_machine_type_t current_state){
             		break;
         		}
 
-     
 				current_dir = get_direction(current_dir);
 				printf("%d\n",current_dir );
 				elev_set_motor_direction(current_dir);  
@@ -135,31 +144,23 @@ state_machine_type_t state_machine(state_machine_type_t current_state){
 
 		case STOPPED:  // I en etasje!! 
 			stop_elev();
-			//current_dir = DIRN_STOP;
-			printf("Stoppet\n");
 			elev_set_motor_direction(DIRN_STOP);
 			current_floor = elev_get_floor_sensor_signal();
-			
 
 			if(current_floor != -1){ //dobbelsjekker i etasje
-				open_door();
 				delete_order(current_floor);
-				/*clock_t start_value = clock();
-				while (!timer_expired(start_value)) {
-					set_order();
-				}
-				close_door();
-			}*/
-			/*while (timer) {
-				stop_elev();
-				open_door();
-				set_order();
-				}*/
-			}
-			close_door();
+				//open_door();
+				time_t start = start_time();
 
+    			while (!(timer_expired(start))) {
+    				set_order();
+        			open_door(); //ENDRE
+    			}
+				close_door();
+
+			}
 			next_state = IDLE;
-			
+
 			if(elev_get_stop_signal()){
 				next_state = EMERGENCY;
 			}

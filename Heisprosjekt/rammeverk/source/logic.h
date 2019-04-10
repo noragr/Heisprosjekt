@@ -23,7 +23,7 @@ int order_amount();
 
 int order_is_in_dir(elev_motor_direction_t current_dir);
 
-int check_order_complete(); //return 1 if complete, 0 otherwise
+int check_order_complete(elev_motor_direction_t dir); //return 1 if complete, 0 otherwise
 
 
 #endif // #ifndef __INCLUDE _LOGIC_H__
