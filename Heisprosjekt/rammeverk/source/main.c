@@ -1,13 +1,20 @@
 #include "elev.h"
 #include "logic.h"
-
+#include "timer.h"
 #include "statemachine.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 int main() {
 
     printf("Press obstruction button to stop elevator and exit program.\n");
+    time_t start = start_time();
+    while (!(timer_expired(start))) {
+        printf("Timer Test\n");
+    }
+
+
     static state_machine_type_t next_state;
     static state_machine_type_t current_state;
     static elev_motor_direction_t current_dir;
